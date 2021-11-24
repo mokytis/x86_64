@@ -1,12 +1,11 @@
 global _start
 
 section .bss
-	num1: resb 16
-	num2: resb 16
-	limit: resb 16
 	digits: resb 8
 	digit: resb 8
 section .data
+	counter: dq 1
+	limit: dq 100
   newline: db 10
 	fizz: db "Fizz"
 	buzz: db "Buzz"
@@ -14,19 +13,17 @@ section .data
 section .text
 
 _start:
-	mov dword [num1], 1  ; starting value is 1
-	mov dword [limit], 100  ; we want to output 100 fizzbuzz values
 _loop:
-	; check if num1 divides by 3 or 5. if it does checkDivis will output
+	; check if counter divides by 3 or 5. if it does checkDivis will output
 	; Fizz and/or Buzz accordingly
 	; if this happened, we want to ouptut a newline here (what _match does)
 	; if not, we want to output an ascii of the number (_outputValue)
-	mov rbx, [num1]
+	mov rbx, [counter]
 	call _checkDivis
 	cmp rax, 0
 	jne _match
 
-	mov rbx, [num1]
+	mov rbx, [counter]
 	call _outputValue
 	jmp _loopend
 
@@ -38,8 +35,8 @@ _match:
 	mov rdx, 1  ; buffer length for newline is 1
 	syscall
 _loopend:
-	add dword [num1], 1  ; increment counter/fizzbuzz number
-	mov rax, [num1]
+	add dword [counter], 1  ; increment counter/fizzbuzz number
+	mov rax, [counter]
 
 	; loop pexit condition.
 	cmp rax, [limit]

@@ -14,9 +14,13 @@ section .data
 section .text
 
 _start:
-	mov dword [num1], 1
-	mov dword [limit], 100
+	mov dword [num1], 1  ; starting value is 1
+	mov dword [limit], 100  ; we want to output 100 fizzbuzz values
 _loop:
+	; check if num1 divides by 3 or 5. if it does checkDivis will output
+	; Fizz and/or Buzz accordingly
+	; if this happened, we want to ouptut a newline here (what _match does)
+	; if not, we want to output an ascii of the number (_outputValue)
 	mov rbx, [num1]
 	call _checkDivis
 	cmp rax, 0
@@ -27,21 +31,24 @@ _loop:
 	jmp _loopend
 
 _match:
-  mov rax, 1
-	mov rdi, 1
-	mov rsi, newline
-	mov rdx, 1
+ ; output newline
+  mov rax, 1  ; write syscall
+	mov rdi, 1  ; fd1 = stdout
+	mov rsi, newline  ; buffer to write
+	mov rdx, 1  ; buffer length for newline is 1
 	syscall
 _loopend:
-	add dword [num1], 1
+	add dword [num1], 1  ; increment counter/fizzbuzz number
 	mov rax, [num1]
+
+	; loop pexit condition.
 	cmp rax, [limit]
 	je _end
 	jmp _loop
 
 _end:
-  mov rax, 60
-  mov rdi, 0
+  mov rax, 60  ; exit syscall
+  mov rdi, 0 ; 0 = exit code good
   syscall
 
 _checkDivis:
@@ -93,23 +100,27 @@ _outputValue:
 	; becuause we need to revese endieness
   mov dword [digits], 0
 
-_outputloop:
+_output_addvaluestostack:
+	; does a divmod 10
+	; adds 48 (ascii int offset) to remainder and pushes it to the stack
+	; repeats with the division result until the result is zero
 
 	mov rdx, 0
 	mov rcx, 10
 	mov rax, rbx
 	div rcx
 
-	add rdx, 48
+	add rdx, 48 ; ascii int offset (ascii 48 = 0 ascii 49 = 1 etc.)
 	push dx
 	add dword [digits], 1
 
 	mov rbx, rax
 	cmp rax, 0
-	je _outputstack
-	jmp _outputloop
+	je _output_writevaluesfromstack
+	jmp _output_addvaluestostack
 
-_outputstack:
+_output_writevaluesfromstack:
+	; outputs the ascii vlaues from the stack
 	cmp dword [digits], 0
 	je _exitoutput
 
@@ -121,9 +132,10 @@ _outputstack:
 	mov rdx, 1
 	syscall
 	sub dword [digits], 1
-	jmp _outputstack
+	jmp _output_writevaluesfromstack
 
 _exitoutput:
+	; output a newline
   mov rax, 1
 	mov rdi, 1
 	mov rsi, newline

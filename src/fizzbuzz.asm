@@ -3,8 +3,6 @@ global _start
 section .data
 	counter: dq 1  ; loop counter. value to output/check divisors for
 	limit: dq 100  ; loop exit value. program outputs $limit values
-	digits: dq 0  ; used in _outputValue. (TODO move from here to _outputValue)
-	digit: dw 0  ; used in _outputValue. (TODO move from here to _ouputValue)
   newline: db 10  ; ascii of newline \n
 	fizz: db "Fizz"
 	buzz: db "Buzz"
@@ -90,11 +88,20 @@ _ex:
 	leave
 	ret
 
-
 _outputValue:
+	; output ascii for a number (in rbx) and a newline
+
+	; create stackframe
+	push rbp
+	mov rbp, rsp
+	sub rsp, 16  ; we have 16 bytes of local variables
+
 	; we start by adding the values to the stack
 	; becuause we need to revese endieness
-  mov dword [digits], 0
+	push 10
+	mov dword [rbp  - 8], 2  ; digits (bytes to output)
+	mov dword [rbp - 16], 0  ; digit
+
 
 _output_addvaluestostack:
 	; does a divmod 10
@@ -108,7 +115,7 @@ _output_addvaluestostack:
 
 	add rdx, 48 ; ascii int offset (ascii 48 = 0 ascii 49 = 1 etc.)
 	push dx
-	add dword [digits], 1
+	add dword [rbp  - 8], 2  ; add 2 to digits (each digit is 2 bytes)
 
 	mov rbx, rax
 	cmp rax, 0
@@ -116,25 +123,11 @@ _output_addvaluestostack:
 	jmp _output_addvaluestostack
 
 _output_writevaluesfromstack:
-	; outputs the ascii vlaues from the stack
-	cmp dword [digits], 0
-	je _exitoutput
-
-	pop ax
-	mov [digit], ax
   mov rax, 1
 	mov rdi, 1
-	mov rsi, digit
-	mov rdx, 1
+	mov rsi, rsp
+	mov rdx, [rbp - 8] ; length
 	syscall
-	sub dword [digits], 1
-	jmp _output_writevaluesfromstack
 
-_exitoutput:
-	; output a newline
-  mov rax, 1
-	mov rdi, 1
-	mov rsi, newline
-	mov rdx, 1
-	syscall
+	leave
 	ret

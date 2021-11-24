@@ -120,8 +120,8 @@ section .bss
 	input: resb 8
 	index: resb 8
 	counter: resb 8
-	num1: resb 16
-	num2: resb 16
 section .data
+	num1: dq 1
+	num2: dq 1
   newline: db 10
 	question: db "How many fib values? "

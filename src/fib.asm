@@ -123,5 +123,4 @@ section .bss
 section .data
 	num1: dq 1
 	num2: dq 1
-  newline: db 10
 	question: db "How many fib values? "

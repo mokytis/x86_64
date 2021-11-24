@@ -1,12 +1,11 @@
 global _start
 
-section .bss
-	digits: resb 8
-	digit: resb 8
 section .data
-	counter: dq 1
-	limit: dq 100
-  newline: db 10
+	counter: dq 1  ; loop counter. value to output/check divisors for
+	limit: dq 100  ; loop exit value. program outputs $limit values
+	digits: dq 0  ; used in _outputValue. (TODO move from here to _outputValue)
+	digit: dw 0  ; used in _outputValue. (TODO move from here to _ouputValue)
+  newline: db 10  ; ascii of newline \n
 	fizz: db "Fizz"
 	buzz: db "Buzz"
 
